@@ -1,4 +1,5 @@
 */.vs/
+*/enc_temp_folder/
 */Build/
 */Binaries/
 */DerivedDataCache/
@@ -6,3 +7,4 @@
 */Saved/
 
 Escape/Content/StarterContent/
+
