@@ -32,15 +32,20 @@ private:
 
 		
 private:
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(EditAnywhere)
     float OpenAngle = -90.f;
 	
     UPROPERTY(EditAnywhere)
     ATriggerVolume* PressurePlate;
 
+    UPROPERTY(EditAnywhere)
+    float TimeToClose = 1;
+    
+        
+private:
     AActor* ActorThatOpens;
 
-    FRotator OpenDoorRotator;
-    FRotator CloseDoorRotator;
-
+    FRotator    OpenDoorRotator;
+    FRotator    CloseDoorRotator;
+    float       OpenTime;
 };
