@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/TriggerVolume.h"
 #include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
     : OpenTime(0.f)
@@ -35,7 +36,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (PressurePlate && PressurePlate->IsOverlappingActor(ActorThatOpens))
+    if (IsTriggerActivated())
     {
         OpenDoor();
         OpenTime = GetWorld()->GetTimeSeconds();
@@ -57,3 +58,26 @@ void UOpenDoor::OpenDoor() const
     GetOwner()->SetActorRotation(OpenDoorRotator);
 }
 
+bool UOpenDoor::IsTriggerActivated() const
+{
+    return GetWightOfCollapsingObject() >= TriggerMass;
+}
+
+float UOpenDoor::GetWightOfCollapsingObject() const
+{
+    if (PressurePlate == nullptr)
+        return 0;
+    TArray<AActor*> OverlappingActors;
+    PressurePlate->GetOverlappingActors(OverlappingActors);
+
+    float OverlappingActorsMass = 0;
+
+    for (const auto& OverlappingActor : OverlappingActors)
+    {
+        UPrimitiveComponent* OverlappingPrimitveComponent = OverlappingActor->FindComponentByClass<UPrimitiveComponent>();
+        if (OverlappingPrimitveComponent)
+            OverlappingActorsMass += OverlappingPrimitveComponent->GetMass();
+    }
+
+    return OverlappingActorsMass;
+}

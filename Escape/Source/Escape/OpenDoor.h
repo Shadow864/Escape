@@ -29,14 +29,17 @@ public:
 private:
     void OpenDoor() const;
     void CloseDoor() const;
-
-		
+    bool IsTriggerActivated() const;
+    float GetWightOfCollapsingObject() const;
 private:
     UPROPERTY(EditAnywhere)
     float OpenAngle = -90.f;
 	
     UPROPERTY(EditAnywhere)
     ATriggerVolume* PressurePlate;
+
+    UPROPERTY(EditAnywhere)
+    float TriggerMass = 70;
 
     UPROPERTY(EditAnywhere)
     float TimeToClose = 1;
@@ -48,4 +51,6 @@ private:
     FRotator    OpenDoorRotator;
     FRotator    CloseDoorRotator;
     float       OpenTime;
+
+
 };
