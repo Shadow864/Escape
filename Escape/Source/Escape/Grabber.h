@@ -35,7 +35,8 @@ public:
 private:
     void Grab();
     void Release();
-
+    FVector GetReachLineStart() const;
+    FVector GetReachLineEnd() const;
     UPhysicsHandleComponent* PhysicsHandle = nullptr;
     UInputComponent* InputComponent;
 

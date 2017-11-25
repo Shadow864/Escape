@@ -5,6 +5,8 @@
 #include "DrawDebugHelpers.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/PrimitiveComponent.h"
+
 // Sets default values for this component's properties
 UGrabber::UGrabber()
 {
@@ -28,28 +30,22 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if (PhysicsHandle->GetGrabbedComponent())
+    {
+        PhysicsHandle->SetTargetLocation(GetReachLineEnd());
+    }
 }
 
 FHitResult UGrabber::GetFirstPhysicBodyInReach() const
 {
-    FVector PlayerViewPointLocation;
-    FRotator PlayerViewPointRotation;
-    GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
-
-
-    FVector LineBegin = PlayerViewPointLocation;
-    FVector LineEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Range;
-
-
-    DrawDebugLine(GetWorld(), LineBegin, LineEnd, FColor::Red, false, -1.f, 0, 10);
-
     FHitResult HitResult;
-
     FString ObjectName = "NONE";
-    if (GetWorld()->LineTraceSingleByObjectType(HitResult, LineBegin, LineEnd, FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody)))
+
+    if (GetWorld()->LineTraceSingleByObjectType(HitResult, GetReachLineStart(), GetReachLineEnd(), FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody)))
         ObjectName = HitResult.GetActor()->GetName();
 
-    UE_LOG(LogTemp, Warning, TEXT("Location %s Rotation %s Object %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString(), *ObjectName);
+    UE_LOG(LogTemp, Warning, TEXT("Object %s"), *ObjectName);
 
     return HitResult;
 }
@@ -83,11 +79,33 @@ void UGrabber::SetupInputComponent()
 }
 void UGrabber::Grab()
 {
-    GetFirstPhysicBodyInReach();
+    FHitResult HitResult = GetFirstPhysicBodyInReach();
+    UPrimitiveComponent* ComponentToGrab = HitResult.GetComponent();
+    AActor* HitActor = HitResult.GetActor();
+
+    if (HitActor)
+        PhysicsHandle->GrabComponent(ComponentToGrab, FName(TEXT("")), HitActor->GetActorLocation(), true);
 }
 
 void UGrabber::Release()
 {
-
+    PhysicsHandle->ReleaseComponent();
 }
 
+FVector UGrabber::GetReachLineStart() const
+{
+    FVector PlayerViewPointLocation;
+    FRotator PlayerViewPointRotation;
+    GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+
+    return PlayerViewPointLocation;
+}
+
+FVector UGrabber::GetReachLineEnd() const
+{
+    FVector PlayerViewPointLocation;
+    FRotator PlayerViewPointRotation;
+    GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+
+    return PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Range;
+}
