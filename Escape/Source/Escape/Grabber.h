@@ -40,5 +40,5 @@ private:
     UPhysicsHandleComponent* PhysicsHandle = nullptr;
     UInputComponent* InputComponent;
 
-    float Range = 100.f;
+    float Range = 150.f;
 };
