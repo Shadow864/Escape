@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "OpenDoor.generated.h"
 
 class ATriggerVolume;
 
-#include "OpenDoor.generated.h"
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloseRequest);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API UOpenDoor : public UActorComponent
 {
@@ -32,8 +35,6 @@ private:
     bool IsTriggerActivated() const;
     float GetWightOfCollapsingObject() const;
 private:
-    UPROPERTY(EditAnywhere)
-    float OpenAngle = -90.f;
 	
     UPROPERTY(EditAnywhere)
     ATriggerVolume* PressurePlate;
@@ -44,13 +45,15 @@ private:
     UPROPERTY(EditAnywhere)
     float TimeToClose = 1;
     
-        
-private:
-    AActor* ActorThatOpens;
+    UPROPERTY(BlueprintAssignable)
+    FOnOpenRequest OnOpenRequest;
 
-    FRotator    OpenDoorRotator;
-    FRotator    CloseDoorRotator;
-    float       OpenTime;
+    UPROPERTY(BlueprintAssignable)
+    FOnCloseRequest OnCloseRequest;
+
+private:
+    AActor* ActorThatOpens = nullptr;
+    float       OpenTime = 0.f;
 
 
 };

@@ -7,7 +7,6 @@
 #include "Components/PrimitiveComponent.h"
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
-    : OpenTime(0.f)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -23,12 +22,6 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
-
-    OpenDoorRotator = GetOwner()->GetActorRotation();
-    CloseDoorRotator = GetOwner()->GetActorRotation();
-
-    OpenDoorRotator.Add(0, OpenAngle, 0);
-
 }
 
 // Called every frame
@@ -50,12 +43,12 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UOpenDoor::CloseDoor() const
 {
-    GetOwner()->SetActorRotation(CloseDoorRotator);
+    OnCloseRequest.Broadcast();
 }
 
 void UOpenDoor::OpenDoor() const
 {
-    GetOwner()->SetActorRotation(OpenDoorRotator);
+    OnOpenRequest.Broadcast();
 }
 
 bool UOpenDoor::IsTriggerActivated() const
@@ -67,6 +60,7 @@ float UOpenDoor::GetWightOfCollapsingObject() const
 {
     if (PressurePlate == nullptr)
         return 0;
+
     TArray<AActor*> OverlappingActors;
     PressurePlate->GetOverlappingActors(OverlappingActors);
 
